@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tap Counter</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+      button {
+        padding: 20px 40px;
+        font-size: 18px;
+        cursor: pointer;
+      }
+      #tapCount {
+        margin-top: 20px;
+        font-size: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="recordTap()">Tap Me!</button>
+    <div id="tapCount">Total Taps: 0</div>
+
+    <script>
+      async function recordTap() {
+        try {
+          console.log("Sending tap request...");
+          const tapResponse = await fetch("/tap", {
+            method: "POST",
+          });
+          if (!tapResponse.ok) throw new Error("Tap request failed");
+
+          console.log("Fetching updated tap count...");
+          const countResponse = await fetch("/taps");
+          if (!countResponse.ok) throw new Error("Count fetch failed");
+
+          const data = await countResponse.json();
+          console.log("Received data:", data);
+          document.getElementById(
+            "tapCount"
+          ).innerText = `Total Taps: ${data.taps}`;
+        } catch (error) {
+          console.error("Error:", error.message);
+        }
+      }
+
+      // Fetch initial tap count
+      window.onload = async () => {
+        try {
+          console.log("Fetching initial tap count...");
+          const response = await fetch("/taps");
+          if (!response.ok) throw new Error("Initial fetch failed");
+          const data = await response.json();
+          document.getElementById(
+            "tapCount"
+          ).innerText = `Total Taps: ${data.taps}`;
+        } catch (error) {
+          console.error("Initial load error:", error.message);
+        }
+      };
+    </script>
+  </body>
+</html>
